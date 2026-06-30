@@ -1,0 +1,15 @@
+{
+  "name": "esewa-dashboard-project",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node Backend/server.js",
+    "dev": "node Backend/server.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.108.2",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "serverless-http": "^3.0.0"
+  }
+}
