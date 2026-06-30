@@ -1,0 +1,10 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+#app {
+  min-height: 100vh;
+}
