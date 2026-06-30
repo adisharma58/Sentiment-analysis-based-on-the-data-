@@ -693,6 +693,46 @@ function renderProbGrid() {
   document.getElementById('prob-drill').style.display='none';
   document.getElementById('breadcrumb').classList.add('hidden');
   const grid = document.getElementById('prob-grid');
+  const others = document.getElementById('prob-others');
+  if (!others) {
+    const wrapper = document.createElement('div');
+    wrapper.id = 'prob-others';
+    wrapper.style.marginBottom = '14px';
+    wrapper.innerHTML = `
+      <div class="others-card" onclick="drillOthers()">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="font-size:22px">🗂️</div>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:var(--ink)">Others & Edge Cases</div>
+              <div style="font-size:11px;color:var(--ink4)">588 general reviews · Filtered for signal vs noise</div>
+            </div>
+          </div>
+          <span class="bd bd-gray" style="white-space:nowrap">Low-frequency issues</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+          <div style="background:var(--rl);border-radius:8px;padding:10px 12px;text-align:center">
+            <div style="font-size:18px;font-weight:800;color:var(--rd)">52</div>
+            <div style="font-size:10px;color:var(--rd);font-weight:600;margin-top:1px">Actionable Issues</div>
+            <div style="font-size:10px;color:#f87171;margin-top:2px">Valid unique problems</div>
+          </div>
+          <div style="background:var(--ink6);border-radius:8px;padding:10px 12px;text-align:center">
+            <div style="font-size:18px;font-weight:800;color:var(--ink3)">536</div>
+            <div style="font-size:10px;color:var(--ink3);font-weight:600;margin-top:1px">Filtered Noise</div>
+            <div style="font-size:10px;color:var(--ink4);margin-top:2px">Generic/spam/short</div>
+          </div>
+          <div style="background:var(--gl);border-radius:8px;padding:10px 12px;text-align:center">
+            <div style="font-size:18px;font-weight:800;color:var(--gd)">8.8%</div>
+            <div style="font-size:10px;color:var(--gd);font-weight:600;margin-top:1px">Signal Rate</div>
+            <div style="font-size:10px;color:#4ade80;margin-top:2px;color:var(--gd)">After NLP filter</div>
+          </div>
+        </div>
+        <div style="font-size:10.5px;color:var(--ink4);margin-top:10px">▶ Click to view actionable issues vs filtered noise</div>
+      </div>`;
+    grid.parentNode.insertBefore(wrapper, grid.nextSibling);
+  } else {
+    others.style.display='block';
+  }
   grid.innerHTML = PROB_CONFIG.map((p,i)=>{
     const d = probData(p.cat);
     const neg = d.neg||0, pos = d.pos||0, neu = d.neu||0, total = d.total||0;
@@ -715,39 +755,6 @@ function renderProbGrid() {
       <div class="pc-drill-hint">▶ Click to drill down</div>
     </div>`;
   }).join('');
-  // Others card
-  grid.insertAdjacentHTML('afterend', `<div style="margin-bottom:14px">
-    <div class="others-card" onclick="drillOthers()">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px">
-        <div style="display:flex;align-items:center;gap:10px">
-          <div style="font-size:22px">🗂️</div>
-          <div>
-            <div style="font-size:13px;font-weight:700;color:var(--ink)">Others & Edge Cases</div>
-            <div style="font-size:11px;color:var(--ink4)">588 general reviews · Filtered for signal vs noise</div>
-          </div>
-        </div>
-        <span class="bd bd-gray" style="white-space:nowrap">Low-frequency issues</span>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
-        <div style="background:var(--rl);border-radius:8px;padding:10px 12px;text-align:center">
-          <div style="font-size:18px;font-weight:800;color:var(--rd)">52</div>
-          <div style="font-size:10px;color:var(--rd);font-weight:600;margin-top:1px">Actionable Issues</div>
-          <div style="font-size:10px;color:#f87171;margin-top:2px">Valid unique problems</div>
-        </div>
-        <div style="background:var(--ink6);border-radius:8px;padding:10px 12px;text-align:center">
-          <div style="font-size:18px;font-weight:800;color:var(--ink3)">536</div>
-          <div style="font-size:10px;color:var(--ink3);font-weight:600;margin-top:1px">Filtered Noise</div>
-          <div style="font-size:10px;color:var(--ink4);margin-top:2px">Generic/spam/short</div>
-        </div>
-        <div style="background:var(--gl);border-radius:8px;padding:10px 12px;text-align:center">
-          <div style="font-size:18px;font-weight:800;color:var(--gd)">8.8%</div>
-          <div style="font-size:10px;color:var(--gd);font-weight:600;margin-top:1px">Signal Rate</div>
-          <div style="font-size:10px;color:#4ade80;margin-top:2px;color:var(--gd)">After NLP filter</div>
-        </div>
-      </div>
-      <div style="font-size:10.5px;color:var(--ink4);margin-top:10px">▶ Click to view actionable issues vs filtered noise</div>
-    </div>
-  </div>`);
 }
 
 function drillInto(idx) {
