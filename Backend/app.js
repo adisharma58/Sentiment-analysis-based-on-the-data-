@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const { createClient } = require("@supabase/supabase-js");
+const { fetchLiveReviews } = require("./reviewFetcher");
 
 const app = express();
 
@@ -35,5 +36,33 @@ app.get("/api", (req, res) => {
 
 app.get("/reviews", sendReviews);
 app.get("/api/reviews", sendReviews);
+
+app.get("/reviews/live", async (req, res) => {
+  try {
+    const result = await fetchLiveReviews({
+      platform: req.query.platform || "both",
+      playPackage: req.query.playPackage || process.env.PLAY_STORE_APP_ID || "com.esewa.android",
+      appStoreId: req.query.appStoreId || process.env.APP_STORE_APP_ID || "id1551981370",
+      limit: Number(req.query.limit || 80)
+    });
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get("/api/reviews/live", async (req, res) => {
+  try {
+    const result = await fetchLiveReviews({
+      platform: req.query.platform || "both",
+      playPackage: req.query.playPackage || process.env.PLAY_STORE_APP_ID || "com.esewa.android",
+      appStoreId: req.query.appStoreId || process.env.APP_STORE_APP_ID || "id1551981370",
+      limit: Number(req.query.limit || 80)
+    });
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 module.exports = app;
