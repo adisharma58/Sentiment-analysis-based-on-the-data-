@@ -286,6 +286,13 @@ body.dark .tp-card.on, body.dark .dept-card.on{background:#052e16}
  border:1px solid var(--border);background:var(--card);color:var(--ink);
  padding:7px 12px;border-radius:20px;cursor:pointer;font-size:12px;
 }
+.date-picker{
+ border:1px solid var(--border);background:var(--card);color:var(--ink);
+ padding:7px 12px;border-radius:20px;cursor:pointer;font-size:12px;font-family:inherit;
+ min-width:140px;
+}
+.date-picker:focus{outline:none;border-color:var(--g);box-shadow:0 0 0 2px rgba(96,187,70,.15)}
+body.dark .date-picker{background:#1e293b;color:#f8fafc;border-color:#334155}
 .mobile-menu-btn{display:none;align-items:center;justify-content:center;width:36px;height:36px;border:1px solid var(--border);border-radius:10px;background:var(--card);color:var(--ink);cursor:pointer;font-size:16px;margin-right:10px}
 .tb-left{display:flex;align-items:center;gap:8px;min-width:0}
 .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(2,6,23,.45);z-index:150}
@@ -479,14 +486,9 @@ body.dark input{
     </div>
     <div class="tb-right">
       <span class="tb-chip tc-g">● Live Data</span>
-      <span class="tb-chip tc-gray">985 reviews</span><button id="liveSyncBtn" class="theme-btn" onclick="syncLiveReviews()">🔄 Live Sync</button><button class="theme-btn" onclick="toggleTheme()">🌙 Theme</button>
-    </div>
-  </header>
-
-  <!-- BREADCRUMB -->
-  <div class="breadcrumb hidden" id="breadcrumb">
-    <span class="bc-link" id="bc-root" onclick="bcRoot()">Problem Categories</span>
-    <span class="bc-sep">›</span>
+      <span class="tb-chip tc-gray">985 reviews</span>
+      <input type="date" id="dateFilterInput" class="date-picker" onchange="filterByDate(this.value)" title="Filter reviews by date">
+      <button id="liveSyncBtn" class="theme-btn" onclick="syncLiveReviews()">🔄 Live Sync</button><button class="theme-btn" onclick="toggleTheme()">🌙 Theme</button>
     <span class="bc-current" id="bc-current">—</span>
   </div>
 
@@ -1098,6 +1100,40 @@ function selectTp(tp, el) {
   revPage=1;filterRevs();
 }
 
+let SELECTED_DATE = null;
+
+function initDatePicker() {
+  const allDates = [...new Set(REVIEWS.map(r => r.d))].filter(Boolean).sort();
+  if (allDates.length === 0) return;
+  const minDate = allDates[0];
+  const maxDate = allDates[allDates.length - 1];
+  const input = document.getElementById('dateFilterInput');
+  if (input) {
+    input.min = minDate;
+    input.max = maxDate;
+    input.value = '';
+  }
+}
+
+function filterByDate(dateStr) {
+  SELECTED_DATE = dateStr || null;
+  if (SELECTED_DATE) {
+    const dateReviews = REVIEWS.filter(r => r.d === SELECTED_DATE);
+    const stats = buildDashboardStats(dateReviews);
+    applyReviewData(dateReviews);
+    const dateLabel = new Date(SELECTED_DATE).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
+    document.getElementById('tb-sub').textContent = `${dateReviews.length} reviews on ${dateLabel}`;
+  } else {
+    document.getElementById('dateFilterInput').value = '';
+    applyReviewData(REVIEWS);
+    const minDate = Math.min(...REVIEWS.map(r => new Date(r.d)));
+    const maxDate = Math.max(...REVIEWS.map(r => new Date(r.d)));
+    const minLabel = new Date(minDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    const maxLabel = new Date(maxDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    document.getElementById('tb-sub').textContent = `${REVIEWS.length} Play Store reviews · ${minLabel} – ${maxLabel}`;
+  }
+}
+
 function filterRevs() {
   const q = (document.getElementById('rsearch')||{}).value?.toLowerCase()||'';
   const sent = (document.getElementById('rsent')||{}).value||'';
@@ -1460,6 +1496,12 @@ async function syncLiveReviews() {
     applyReviewData(reviews);
     console.log('[syncLiveReviews] Dashboard updated successfully');
     
+    // Reset date filter and reinitialize date picker
+    SELECTED_DATE = null;
+    const dateInput = document.getElementById('dateFilterInput');
+    if (dateInput) dateInput.value = '';
+    initDatePicker();
+    
     if (btn) {
       const sourceLabel = sources.sourcesUsed ? `(${sources.sourcesUsed.join('/')})` : '';
       btn.textContent = `✅ Synced ${reviews.length} ${sourceLabel}`;
@@ -1481,7 +1523,7 @@ async function syncLiveReviews() {
     }
   }
 }
-document.addEventListener('DOMContentLoaded',()=>controlSearchVisibility('overview'));
+document.addEventListener('DOMContentLoaded',()=>{controlSearchVisibility('overview'); initDatePicker();});
 </script>
 </body>
 </html>
